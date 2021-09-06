@@ -6,7 +6,7 @@ class ArticleModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
         # fields = ['id', 'title', 'author', 'email'] # Los campos que estén aquí son requeridos,
-                                                    # menos el id que se autoincrementa
+                                                    # menos el id que se autoincrementa, y la date que se toma sola
         fields = '__all__' # Si quiero que todos los campos sean requeridos
 
 

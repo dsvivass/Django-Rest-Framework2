@@ -5,15 +5,71 @@ from .models import Article
 from .serializers import ArticleModelSerializer
 from django.views.decorators.csrf import csrf_exempt
 
-# Libs used for the Short way
+# Libs used for the Short way function
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 
+# Libs used for the Class based API views
+
+from rest_framework.views import APIView
+
 # Create your views here.
 
-# Short way
+# CLASS BASED API VIEWS, Even better than functions, reusable code, much cleaner
+
+class ArticleAPIView(APIView):
+
+    def get(self, request):
+        articles = Article.objects.all()
+        serializers = ArticleModelSerializer(articles, many=True)
+        return Response(serializers.data)
+
+    def post(self, request):
+        serializer = ArticleModelSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class ArticleDetailsAPIView(APIView):
+
+    def getObject(self, id):
+        try:
+            return Article.objects.get(id=id)
+
+        except Article.DoesNotExist:
+            raise HttpResponse(status=status.HTTP_404_NOT_FOUND)
+
+    def get(self, request, id):
+        article = self.getObject(id)
+        serializer = ArticleModelSerializer(article)
+        return Response(serializer.data)
+
+    def put(self, request, id):
+        article = self.getObject(id)
+        serializer = ArticleModelSerializer(article, data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, id):
+        article = self.getObject(id)
+        article.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+
+# Short way using functions
 
 @api_view(['GET', 'POST'])
 def article_list(request):
@@ -58,7 +114,7 @@ def article_detail(request, id):
         article.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-# Long way
+# Long way using functions
 
 # @csrf_exempt # Esto lo uso para forzar el saltado del token y
 #               # usar Postman o insomnia para enviar requests directos
