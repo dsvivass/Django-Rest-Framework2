@@ -1,11 +1,13 @@
 from rest_framework import serializers
 from .models import Article
 
-# Usando ModelSerializer
+# Usando ModelSerializer MÁS RÁPIDO
 class ArticleModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Article
-        fields = ['id', 'title', 'author']
+        # fields = ['id', 'title', 'author', 'email'] # Los campos que estén aquí son requeridos,
+                                                    # menos el id que se autoincrementa
+        fields = '__all__' # Si quiero que todos los campos sean requeridos
 
 
 # Usando Serializer normal
