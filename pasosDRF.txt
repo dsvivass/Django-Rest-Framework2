@@ -1,0 +1,33 @@
+1. DESPUÉS de haber creado el Virtual environment 
+
+    pip install djangorestframework
+
+2. ¿Qué son los Serializers?
+
+    Antes de enviar datos a los usuarios debemos serializar los
+    datos a JSON
+
+3. Jugando con el Shell (Aquí ya cree ciertos models, y serializers.py con
+    el serializer normal)
+
+    >>> from API_basic.models import Article
+    >>> from API_basic.serializers import ArticleSerializer
+    >>> from rest_framework.renderers import JSONRenderer
+    >>> from rest_framework.parsers import JSONParser
+    >>> a = Article(title="ATitle", author='Daniel', email='dsvivass@dsc.com')
+    >>> a.save() # Cuando invoco esto automaticamente llama a create() del archivo serializers.py
+    >>> a = Article(title="ATitle222", author='Daniel222', email='dsvivass@dsc.com')
+    >>> a.save()
+    >>> serializer = ArticleSerializer(a)
+    >>> serializer.data
+    {'title': 'ATitle222', 'author': 'Daniel222', 'email': 'dsvivass@dsc.com', 'date': '2021-09-06T19:29:02.059116Z'}
+    >>> content = JSONRenderer().render(serializer.data)
+    >>> content
+    b'{"title":"ATitle222","author":"Daniel222","email":"dsvivass@dsc.com","date":"2021-09-06T19:29:02.059116Z"}'
+    >>> qSerializer = ArticleSerializer(Article.objects.all(), many=True) # Para serializar varios objects
+    >>> qSerializer.data
+    [OrderedDict([('title', 'rere'), ('author', 'reer'), ('email', 'dsvivass@unal.edu.co'),
+    ('date', '2021-09-06T19:02:46.902385Z')]), OrderedDict([('title', 'ATitle'), ('author',
+    'Daniel'), ('email', 'dsvivass@dsc.com'), ('date', '2021-09-06T19:26:57.006100Z')]), 
+    OrderedDict([('title', 'ATitle222'), ('author', 'Daniel222'), ('email', 'dsvivass@dsc.com'), 
+    ('date', '2021-09-06T19:29:02.059116Z')])]

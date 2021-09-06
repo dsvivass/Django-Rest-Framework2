@@ -1,0 +1,275 @@
+﻿1. Crear un entorno virtual en una carpeta  /venv/ o /env/
+
+        virtualenv .     # Aqui uno debe estar dentro de la carpeta
+
+2. Activar el entorno virtual:
+
+    - En mac y linux:         source env/bin/activate
+
+    - En windows:             ./env/Script/activate
+
+        (Si arroja error de permisos escribir:
+        
+                    Set-ExecutionPolicy Unrestricted -Scope Process 
+                    
+        )
+
+    Una vez activado debe aparecer el ambiente entre parentesis
+
+    (env) PS C:\Users\DesarrollaDDS ...........
+
+3. Se puede probar con 
+
+        pip freeze
+
+para ver que efectivamente no hay paquetes instalados.
+
+4. instalar Django
+
+    pip install Django    # Instala la última versión
+
+    pip install Django==2.0.7    # Así si queremos una versión diferente
+
+4.1 Una vez instalado, si escribo django-admin, voy a ver todos subcomandos disponibles:
+
+    django-admin
+
+        Type 'django-admin help <subcommand>' for help on a specific subcommand.
+
+        Available subcommands:
+
+        [django]
+            check
+            compilemessages
+            createcachetable
+            dbshell
+            diffsettings
+            dumpdata
+            flush
+            inspectdb
+            loaddata
+            makemessages
+            makemigrations
+            migrate
+            runserver
+            sendtestemail
+            shell
+            showmigrations
+            sqlflush
+            sqlmigrate
+            sqlsequencereset
+            squashmigrations
+            startapp
+            startproject
+            test
+            testserver
+
+        Note that only Django core commands are listed as settings are not properly 
+        configured (error: Requested setting INSTALLED_APPS, but settings are not 
+        configured. You must either define the environment variable DJANGO_SETTINGS_MODULE 
+        or call settings.configure() before accessing settings.).
+
+
+5. Iniciar un proyecto
+    
+    (OPCIONAL) Crear una carpeta que se llame "src" y crear allí el proyecto
+
+        django-admin startproject <nombre del proyecto> .   # El punto es para iniciarlo en la carpeta src 
+
+6. Si voy al directorio raiz del proyecto y ejecuto:
+
+    python manage.py runserver
+
+        saldrá lo siguiente:
+
+        Performing system checks...
+
+        System check identified no issues (0 silenced).
+
+        You have 14 unapplied migration(s). Your project may not work properly until you apply the migrations for app(s): admin, auth, contenttypes, sessions.
+        Run 'python manage.py migrate' to apply them.
+        August 09, 2021 - 17:01:44
+        Django version 2.0.7, using settings 'django2.settings'
+        Starting development server at http://127.0.0.1:8000/
+        Quit the server with CTRL-BREAK.
+        [09/Aug/2021 17:01:59] "GET / HTTP/1.1" 200 16348
+        [09/Aug/2021 17:01:59] "GET /static/admin/css/fonts.css HTTP/1.1" 200 423
+        [09/Aug/2021 17:01:59] "GET /static/admin/fonts/Roboto-Light-webfont.woff HTTP/1.1" 200
+        81348
+        [09/Aug/2021 17:01:59] "GET /static/admin/fonts/Roboto-Bold-webfont.woff HTTP/1.1" 200 82564
+        [09/Aug/2021 17:01:59] "GET /static/admin/fonts/Roboto-Regular-webfont.woff HTTP/1.1" 200 80304
+
+    Y podré ver en el 
+    
+        localhost:8000    o    http://127.0.0.1:8000/
+
+    Que toda la instalación salió bien.
+
+
+7. Sincronizar nuestra configuracion de la base de datos
+
+    python manage.py migrate
+
+    (Algunas veces es mejor hacer las migraciones primero
+    
+        python manage.py makemigrations
+
+    )
+
+8. Crear un super usuario que administra al proyecto:
+
+    python manage.py createsuperuser
+
+    Se pone alias, contraseña y se accede al panel desde:
+
+    localhost:8000/admin
+
+9. Crear una aplicación
+
+    python manage.py startapp <nombre de la aplicacion>
+
+9.1 Cree una app llamada products, y en el archivo "models.py"
+    cree la clase Product, que hereda de models.Model, para mapear
+    mis atributos en la base de datos
+
+10.  Agregar mi app "products" a settings.py en la variable 
+    INSTALLED_APPS
+
+    INSTALLED_APPS = [
+        'django.contrib.admin',
+        'django.contrib.auth',
+        'django.contrib.contenttypes',
+        'django.contrib.sessions',
+        'django.contrib.messages',
+        'django.contrib.staticfiles',
+
+        # Third party
+
+        # Own apps
+        'products',
+    ]
+
+10.1 Ejecuto (Siempre que hagamos cambios en models.py lo ejecutamos)
+
+    python manage.py makemigrations   # Para reconocer los nuevos cambios en la DB 
+
+        Luego ejecuto
+
+    python manage.py migrate
+
+        Y aparecera que migro la app products:
+        Apply all migrations: admin, auth, contenttypes, products, sessions
+
+11. Para observar el modelo recien creado en el panel de admin, hago lo siguiente
+
+    voy a products/admin y registro mi modelo Product
+
+        from .models import Product # Importo el modelo Product recien creado,
+                            # Para verlo en el panel de administracion
+
+        admin.site.register(Product)
+
+12. Para agregar objetos desde el shell de python, escribimos lo siguiente:
+
+    python manage.py shell
+
+        Se abre un shell de python y podemos acceder a toda nuestra info
+
+    Escribimos:
+
+    from products.models import Product
+
+    Product.objects.all()  #  Imprime todos los objetos de la clase Product que tengamos
+
+    Product.objects.create(title='Prduct 2', description='dscript', price=28000, summary='done!')
+
+13. Voy a cambiar los tipos de valores de Product, entonces elimino todo lo que esta en la carpeta
+    migrations, menos el archivo __init__.py y elimino la base de datos también
+
+14. Si creo 2 objetos con ciertos atributos dados y luego decido ingresar un nuevo atributo en models,
+    django va a solicitar que el nuevo atributo tenga un valor por defecto para adicionarlo
+    a los 2 objetos anteriores
+
+    Podría decir None=True para que el nuevo atributo aparezca vacío en los 2 objetos viejos, o darle otro
+    valor por defecto, si es un BooleanField, que sea False por ejemplo por defecto y así.
+
+15. Crear una view
+
+    Creo una app llamada pages, defino lo que va a devolver en una función
+    "homeView" creada en pages/views.py
+
+    Y luego añado esa página a urls.py ubicada en django2/urls.py y la ruta es "home/"
+
+        path('home/', homeView, name='home')
+
+    es decir el inicio se mostrara en
+
+        localhost:8000/home/
+
+16. Templates, en vez de retornar un html sencillo:     return HttpResponse("<h1>Hello World!</h1>")
+
+    Voy a retornar un template: 
+    
+    Voy a la raiz del proyecto y creo un directorio llamado      templates   y por dentro guardo los
+    templates:  ej:  home.html
+
+    y luego debo agregar el path de la carpeta templates a la variable TEMPLATES de settings.py
+
+    usando: os.path.join(BASE_DIR, 'templates') y quedaría así:
+
+    VER MAS COSAS DENTRO DE LOS ARCHIVOS (FOR IF, ETC)
+
+17. Para traer datos de la BD desde el shell
+
+    
+
+        TEMPLATES = [ # Aqui están las plantillas; cómo django renderiza html, etc.
+            {
+                'BACKEND': 'django.template.backends.django.DjangoTemplates',
+                'DIRS': [os.path.join(BASE_DIR, 'templates')],
+                'APP_DIRS': True,
+                'OPTIONS': {
+                    'context_processors': [
+                        'django.template.context_processors.debug',
+                        'django.template.context_processors.request',
+                        'django.contrib.auth.context_processors.auth',
+                        'django.contrib.messages.context_processors.messages',
+                    ],
+                },
+            },
+        ]
+
+17. creo un base.html con información que heredarán los otros html
+
+    y poner en los otros:
+
+        {% extends "base.html" %}
+
+        y donde está:
+
+        {% block content %}
+
+        {% endblock %}
+
+        reemplazo en cada página con su propia info.
+
+18. Crear Django model forms (Para que los escriban datos en mi DB)
+
+    Creo un archivo llamado forms.py en products/
+
+        from django import forms 
+
+        from .models import Product
+
+        class ProductForm(forms.ModelForm):
+            class Meta:
+                model = Product
+                fields = [
+                    'title',
+                    'description',
+                    'price'
+                ]
+
+    Y para verlo vamos a importarlo en views.py
+
+    
