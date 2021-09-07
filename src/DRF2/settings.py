@@ -28,6 +28,9 @@ DEBUG = config('DEBUG')
 
 ALLOWED_HOSTS = []
 
+# Ajuste el auth a mi modelo
+
+AUTH_USER_MODEL = 'API_basic.User'
 
 # Application definition
 
@@ -134,3 +137,5 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+

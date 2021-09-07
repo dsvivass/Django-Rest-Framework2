@@ -21,6 +21,12 @@ from rest_framework.views import APIView
 from rest_framework import generics
 from rest_framework import mixins
 
+# Libs used for authentication
+
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
+
+
 # Create your views here.
 
 # GENERIC VIEWS AND MIXIN, even better
@@ -33,6 +39,10 @@ class GenericAPIView(generics.GenericAPIView, mixins.ListModelMixin, # En esta c
     queryset = Article.objects.all()
 
     lookup_field = 'id'
+
+    # authentication
+    authentication_classes = [SessionAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, id=None):
 
