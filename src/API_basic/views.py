@@ -1,8 +1,9 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse, response
+import rest_framework
 from rest_framework.parsers import JSONParser
 from .models import Article
-from .serializers import ArticleModelSerializer
+from .serializers import ArticleModelSerializer, ArticleSerializer
 from django.views.decorators.csrf import csrf_exempt
 
 # Libs used for the Short way function
@@ -15,7 +16,41 @@ from rest_framework import status
 
 from rest_framework.views import APIView
 
+# Libs used for the generic and mixin views
+
+from rest_framework import generics
+from rest_framework import mixins
+
 # Create your views here.
+
+# GENERIC VIEWS AND MIXIN, even better
+
+class GenericAPIView(generics.GenericAPIView, mixins.ListModelMixin, # En esta clase hago todo lo que hacía en las de abajo
+    mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.RetrieveModelMixin,
+    mixins.DestroyModelMixin):
+
+    serializer_class = ArticleModelSerializer
+    queryset = Article.objects.all()
+
+    lookup_field = 'id'
+
+    def get(self, request, id=None):
+
+        if id:
+            return self.retrieve(request)
+
+        else:
+            return self.list(request) # Este funciona colocando el id=0 en el path
+
+    def post(self, request, id=None):
+        return self.create(request)
+
+    def put(self, request, id=None):
+        return self.update(request, id)
+
+    def delete(self, request, id=None):
+        return self.destroy(request, id)
+
 
 # CLASS BASED API VIEWS, Even better than functions, reusable code, much cleaner
 
@@ -34,7 +69,6 @@ class ArticleAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 class ArticleDetailsAPIView(APIView):
