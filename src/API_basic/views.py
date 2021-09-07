@@ -34,6 +34,25 @@ from django.shortcuts import get_object_or_404
 
 # Create your views here.
 
+# MODEL VIEWSET El más sencillo de todos, y hace de todo
+
+class ArticleModalViewSet(viewsets.ModelViewSet):
+    serializer_class = ArticleModelSerializer
+    queryset = Article.objects.all()
+
+# GENERIC VIEWSET Facilisimo, no tenemos que hacer casi nada
+
+class ArticleGenericViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, 
+        mixins.CreateModelMixin, mixins.UpdateModelMixin, mixins.RetrieveModelMixin,
+        mixins.DestroyModelMixin):
+
+    serializer_class = ArticleModelSerializer
+    queryset = Article.objects.all()
+
+
+
+
+
 # VIEWSETS AND ROUTERS
 
 class ArticleViewSet(viewsets.ViewSet):
