@@ -26,8 +26,57 @@ from rest_framework import mixins
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
 
+# Libs used for viewsets and routers
+
+from rest_framework import viewsets
+from django.shortcuts import get_object_or_404
+
 
 # Create your views here.
+
+# VIEWSETS AND ROUTERS
+
+class ArticleViewSet(viewsets.ViewSet):
+
+    def list(self, request):
+
+        articles = Article.objects.all()
+        serializers = ArticleModelSerializer(articles, many=True)
+
+        return Response(serializers.data)
+
+    def create(self, request):
+
+        serializer = ArticleModelSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def retrieve(self, request, pk=None): # Trae solo 1 objeto con esa pk
+
+        queryset = Article.objects.all()
+        article = get_object_or_404(queryset, pk=pk)
+        serializer = ArticleModelSerializer(article)
+
+        return Response(serializer.data)
+
+    def update(self, request, pk=None):
+
+        article = Article.objects.get(pk=pk)
+        serializer = ArticleModelSerializer(article, data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
+
+
+
+
 
 # GENERIC VIEWS AND MIXIN, even better
 
