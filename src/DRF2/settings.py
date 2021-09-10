@@ -28,9 +28,11 @@ DEBUG = config('DEBUG')
 
 ALLOWED_HOSTS = []
 
+CORS_ORIGIN_ALLOW_ALL = True
+
 # Ajuste el auth a mi modelo
 
-AUTH_USER_MODEL = 'API_basic.User'
+AUTH_USER_MODEL = 'API_basic.User'   
 
 # Application definition
 
@@ -44,12 +46,29 @@ INSTALLED_APPS = [
 
     # Django rest framework
     'rest_framework',
+    'rest_framework.authtoken',
 
     # My apps
     'API_basic',
+
+    # Corse
+    'corsheaders',
 ]
 
+# Configuración global para todas las clases en mi proyecto
+# REST_FRAMEWORK = {
+#     'DEFAULT_AUTHENTICATION_CLASSES': (
+#         'rest_framework.authentication.TokenAuthentication',
+#     ),
+#     'DEFAULT_PERMISSION_CLASSES': (
+#         'rest_framework.permissions.IsAuthenticated',
+#     ),
+# }
+
+
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -117,7 +136,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es-co'
 
 TIME_ZONE = 'UTC'
 
@@ -137,5 +156,6 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 
 

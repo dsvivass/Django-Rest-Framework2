@@ -1,9 +1,10 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse, response
 import rest_framework
+from rest_framework import serializers
 from rest_framework.parsers import JSONParser
-from .models import Article
-from .serializers import ArticleModelSerializer, ArticleSerializer
+from .models import Article, User
+from .serializers import ArticleModelSerializer, ArticleSerializer, CreateUserSerializer, GetUserSerializer, GetGeneralUserSerializer
 from django.views.decorators.csrf import csrf_exempt
 
 # Libs used for the Short way function
@@ -24,15 +25,101 @@ from rest_framework import mixins
 # Libs used for authentication
 
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 # Libs used for viewsets and routers
 
 from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
 
+# Libs used for login
+
+from rest_framework.authtoken.models import Token
+from rest_framework.decorators import action
+import regex as re
 
 # Create your views here.
+
+# LOGIN
+
+class UserViewSet2(viewsets.GenericViewSet):
+
+    queryset = User.objects.filter(is_active=True)
+    serializer_class = GetUserSerializer
+
+    @action(detail=False, methods=['POST'])
+    def login22(self, request):
+
+        serializer = GetUserSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user, token = serializer.save()
+
+        data = {
+            'user': GetGeneralUserSerializer(user).data,
+            'access_token': token
+        }
+
+        return Response(data, status=status.HTTP_202_ACCEPTED)
+        
+
+# LOGOUT
+
+class logout(APIView):
+
+    def post(self, request):
+
+        authToken = request.headers['Authorization']
+
+        # print(request.headers.keys())
+
+        pattern = r'\s+(\w*)'
+        tokenString = re.findall(pattern, authToken)[0]
+
+        token = Token.objects.filter(key=tokenString)
+
+        if token:
+            token.delete()
+
+            return Response({"status": 'User Logged out successfully'}, status=status.HTTP_200_OK)
+
+        return Response({"status": 'User already logged out'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class Login(APIView):
+
+    def post(self, request):
+        serializer = GetUserSerializer(data=request.data)
+        print(serializer)
+
+        if serializer.is_valid():
+            # serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# class Login(FormView):
+
+# USER VIEWSET TEST
+
+class UserModalViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
+
+    serializer_class = CreateUserSerializer
+    # permission_classes = [AllowAny]
+    # authentication_classes = [AllowAny]
+    # queryset = Article.objects.all()
+
+# @csrf_exempt
+# class UserModalViewSet(APIView):
+
+#     def post(self, request):
+#         serializer = CreateUserSerializer(data=request.data)
+
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 # MODEL VIEWSET El más sencillo de todos, y hace de todo
 
